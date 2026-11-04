@@ -1,6 +1,6 @@
 # Integrated notebook chart gallery
 
-These 20 PNGs are extracted from the integrated notebook's saved outputs. Initial snapshots retain their embedded resolution. Run the notebook's export setup appendix before an ordered analysis rerun to enable fresh 200-DPI exports. See [the report](../../docs/project_report.md) for interpretation and validation limits. The superseded chart set has been removed.
+These 20 PNGs match the integrated notebook's saved outputs as checked on 5 November 2026. The MarkDown1 scatter, tuned forecast diagnostics, and feature-importance snapshots were refreshed from the updated notebook; the other 17 already matched. Snapshots retain their embedded resolution. To enable fresh 200-DPI exports, uncomment the import and function call in the notebook's export setup appendix and run it before an ordered analysis rerun. See [the report](../../docs/project_report.md) for interpretation and validation limits. The superseded chart set has been removed.
 
 ## Cleaned and log-transformed sales
 
@@ -114,13 +114,13 @@ PCA projection and group sizes; k=3 is explicitly specified.
 
 ![Tuned LightGBM holdout diagnostics](19_forecast_residuals.png)
 
-Parity sample and adjusted-target residual distribution.
+Parity sample and adjusted-target residual distribution for the updated tuned model: WMAE $1,473.21, RMSE $2,931.88, and R² 0.9822. These saved-run scores are subject to the report's validation limitations.
 
 ## LightGBM feature split counts
 
 ![LightGBM feature split counts](20_feature_importance.png)
 
-Default split importance; the chart axis incorrectly says gain.
+Split-frequency importance from the updated tuned estimator; the chart axis incorrectly says gain. Split counts do not establish causal effects.
 
 
 

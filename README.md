@@ -2,7 +2,7 @@
 
 The source of truth is [Integrated_Retail_Analytics_Store_Optimization.ipynb](Integrated_Retail_Analytics_Store_Optimization.ipynb), with 15 exploratory figures, anomaly handling, store segmentation, department association rules, forecasting and illustrative inventory policies.
 
-[Detailed report](docs/project_report.md) | [Chart gallery](outputs/figures/README.md)
+[Detailed report](docs/project_report.md) | [Presentation guide](docs/project_understanding_and_presentation_guide.md) | [Chart gallery](outputs/figures/README.md)
 
 ## Reported forecast results
 
@@ -10,10 +10,12 @@ The source of truth is [Integrated_Retail_Analytics_Store_Optimization.ipynb](In
 |---|---:|---:|---:|---:|
 | Ridge | 1,808.42 | 3,271.17 | 1,778.71 | 0.9778 |
 | Random Forest | **1,471.72** | 2,988.12 | **1,404.11** | 0.9815 |
-| Default LightGBM | 1,484.42 | **2,944.74** | 1,436.34 | **0.9820** |
-| Tuned LightGBM | 1,491.80 | 2,967.83 | Not printed | 0.9818 |
+| Default LightGBM | 1,484.42 | 2,944.74 | 1,436.34 | 0.9820 |
+| Tuned LightGBM | 1,473.21 | **2,931.88** | Not printed | **0.9822** |
 
-These are the supplied notebook's saved-run results. Random Forest leads WMAE; the notebook serializes tuned LightGBM. Tuning did not improve LightGBM test WMAE. Full-period target preprocessing and row-based cross-validation limit these scores; see the report.
+These are the updated notebook's saved-run results, checked on 5 November 2026 without rerunning training. Tuning lowers LightGBM test WMAE by $11.21 (about 0.76%) from its default configuration. Random Forest still leads WMAE by $1.49 and has the lowest printed MAE; tuned LightGBM leads RMSE and R² and is the notebook's serialization candidate. Full-period target preprocessing and row-based cross-validation limit these scores; see the report.
+
+The revised search evaluates six configurations with three folds, using unweighted MAE. It searches learning rates 0.04/0.06, 63/127 leaves, depths 8/10/unlimited, 250/350 trees, and row/column sampling values 0.8/0.9. The saved outputs do not print the selected parameter dictionary or tuned MAE.
 
 ## Data and findings
 
@@ -28,7 +30,7 @@ These are the supplied notebook's saved-run results. Random Forest leads WMAE; t
 
 Use Python 3.12 and install requirements.txt. Start Jupyter from the repository root. The notebook currently loads shared Google Drive CSVs and needs network access; supplied local equivalents are under data/.
 
-Run the **chart-export setup cell near the end of the notebook first**, then run the analysis cells from the top in order. Setup exports the 20 embedded charts immediately and enables live saving before subsequent plt.show() calls. Live exports use 200 DPI, tight margins and the figure's dark background. Rerun setup to reset the sequence before another ordered run. Initial snapshot exports retain their embedded resolution.
+The **chart-export setup cell near the end of the notebook currently has its import and function call commented out**. Uncomment those two lines and run the setup cell before running the analysis cells from the top in order. Setup exports the 20 embedded charts immediately and enables live saving before subsequent plt.show() calls. Live exports use 200 DPI, tight margins and the figure's dark background. Rerun setup to reset the sequence before another ordered run. Snapshot exports retain their embedded resolution.
 
 Keep [retail_chart_exports.py](retail_chart_exports.py) beside the notebook. Full execution includes Random Forest fitting, 18 LightGBM search fits plus refitting, and a large Apriori rule table.
 

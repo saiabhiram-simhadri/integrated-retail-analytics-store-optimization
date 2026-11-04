@@ -1,6 +1,6 @@
 # Integrated Retail Analytics: Project Report
 
-This report describes Integrated_Retail_Analytics_Store_Optimization.ipynb and its supplied saved outputs. The previous notebook's historical-mean forecasts, two-cluster solution, anomaly rules and evaluation periods do not apply to this analysis. Results below were transcribed from the new notebook; full training was not rerun during this documentation update.
+This report describes Integrated_Retail_Analytics_Store_Optimization.ipynb and its updated saved outputs, checked on 5 November 2026. The previous notebook's historical-mean forecasts, two-cluster solution, anomaly rules and evaluation periods do not apply to this analysis. Results below were transcribed from the current notebook; full training was not rerun during this documentation update.
 
 ## 1. Business problem and data
 
@@ -115,12 +115,25 @@ Ridge uses StandardScaler and alpha=10. Random Forest uses 100 trees and max_dep
 |---|---:|---:|---:|---:|---:|
 | Ridge | 2,901.52 | 1,808.42 | 3,271.17 | 1,778.71 | 0.9778 |
 | Random Forest | 1,580.94 | **1,471.72** | 2,988.12 | **1,404.11** | 0.9815 |
-| Default LightGBM | 1,656.75 | 1,484.42 | **2,944.74** | 1,436.34 | **0.9820** |
-| Tuned LightGBM | Not printed | 1,491.80 | 2,967.83 | Not printed | 0.9818 |
+| Default LightGBM | 1,656.75 | 1,484.42 | 2,944.74 | 1,436.34 | 0.9820 |
+| Tuned LightGBM | Not printed | 1,473.21 | **2,931.88** | Not printed | **0.9822** |
 
-Random Forest lowers WMAE by about 18.62% versus Ridge. Default LightGBM leads RMSE and R². The notebook nevertheless exports tuned LightGBM; it should not be described as the best WMAE model.
+Random Forest lowers WMAE by about 18.62% versus Ridge and retains the lowest WMAE and printed MAE. Tuned LightGBM now leads RMSE and R². It is the notebook's serialization candidate, with WMAE just $1.49 (about 0.10%) above Random Forest; it should not be described as the best WMAE model. Aggregate WMAE does not establish a separate holiday-only error ranking.
 
-RandomizedSearchCV evaluates six LightGBM configurations using three TimeSeriesSplit folds and negative unweighted MAE. The selected configuration is num_leaves=31, n_estimators=200, max_depth=12, learning_rate=0.08 and colsample_bytree=1.0. Tuned test WMAE worsens by $7.38 versus default LightGBM and by $20.08 versus Random Forest. The current source does not supply a tuned MAE or CV score table; none is inferred here.
+RandomizedSearchCV evaluates six LightGBM configurations using three TimeSeriesSplit folds and negative unweighted MAE, with seed 47. The revised search space is:
+
+| Parameter | Candidate values |
+|---|---|
+| learning_rate | 0.04, 0.06 |
+| num_leaves | 63, 127 |
+| max_depth | 8, 10, -1 (unlimited) |
+| n_estimators | 250, 350 |
+| subsample | 0.8, 0.9 |
+| colsample_bytree | 0.8, 0.9 |
+
+There are 96 possible combinations; six are sampled, producing 18 fold fits plus the selected refit. The saved code selects `random_search.best_estimator_`, but does not print `best_params_`, a CV score table, tuned training WMAE, or tuned MAE. The notebook narrative mentions a leaf-capacity increase, but the selected parameter dictionary is not verified by the saved outputs. These documents therefore report the search space rather than infer a winning configuration. Also, `subsample` values are searched without explicitly enabling a positive `subsample_freq`, so row subsampling is not established by those values alone.
+
+Tuning lowers test WMAE by **$11.21 (about 0.76%)** versus default LightGBM, from $1,484.42 to $1,473.21. RMSE falls by **$12.86**, from $2,944.74 to $2,931.88, and printed R² rises from 0.9820 to 0.9822. The tuning-analysis narrative still quotes the default RMSE/R² as if they were tuned values; this report uses the tuning cell's recorded outputs instead. Runtime and memory comparisons were not recorded, so computational superiority is not established here.
 
 ![Holdout forecast and residuals](../outputs/figures/19_forecast_residuals.png)
 
@@ -145,21 +158,21 @@ The notebook pools tuned-LightGBM holdout residuals by department across stores.
 
 | Department | Mean forecast ($) | Residual SD ($) | Safety stock ($) | Reorder point ($) |
 |---|---:|---:|---:|---:|
-| 92 | 77,535.96 | 7,798.83 | 18,144 | 173,216 |
-| 95 | 73,848.87 | 5,671.29 | 13,194 | 160,892 |
-| 38 | 61,091.37 | 7,085.73 | 16,485 | 138,668 |
-| 65 | 48,370.50 | 3,648.14 | 8,487 | 105,229 |
-| 90 | 45,921.96 | 3,334.00 | 7,757 | 99,601 |
+| 92 | 78,702.52 | 7,415.45 | 17,252 | 174,658 |
+| 95 | 74,400.24 | 5,820.53 | 13,541 | 162,342 |
+| 38 | 61,542.86 | 7,023.16 | 16,339 | 139,425 |
+| 65 | 48,326.90 | 4,157.97 | 9,674 | 106,328 |
+| 90 | 46,044.97 | 3,199.38 | 7,443 | 99,533 |
 
 These are dollar proxies based on average department-row forecasts, not chain department totals or physical inventory units. Pooling across stores loses local variability. Normal-error and independent-week assumptions are not validated; z=1.645 is an assumed nominal service factor, not evidence of 95% realized on-shelf availability. Buffers calibrated using holdout residuals need separate future validation. Obtain quantities, prices, lead-time distributions, stock availability and store-specific errors before implementing replenishment.
 
-The serialization cell writes models/retail_demand_forecaster.joblib, containing the tuned estimator, ordered 33-feature list, test WMAE/RMSE/R², service factor, seed and training cutoff. It reloads the estimator and predicts three rows. The supplied notebook records a 565.95-KB artifact and forecasts $33,079.38, $20,780.23 and $32,301.70. The actual integrated artifact is absent from the repository at this update; these are recorded outputs, not a newly reproduced file. Existing sales_forecaster, anomaly_model and store_segmentation artifacts are legacy and must not be used as the integrated models. The new notebook does not serialize its Isolation Forest or K-means models.
+The serialization cell writes models/retail_demand_forecaster.joblib, containing the tuned estimator, ordered 33-feature list, test WMAE/RMSE/R², service factor, seed and training cutoff. A separate reload cell predicts three rows. The updated notebook records a **2,723.10-KB** artifact and forecasts **$26,901.25, $23,828.38 and $25,641.47**. The actual integrated artifact is absent from this checkout at this update; these are recorded outputs, not a newly reproduced file. Existing sales_forecaster, anomaly_model and store_segmentation artifacts are legacy and must not be used as the integrated models. The new notebook does not serialize its Isolation Forest or K-means models.
 
 ## 9. Chart exports and reproduction status
 
-The notebook now includes a chart-export setup appendix importing retail_chart_exports.py. Run it once before an ordered analysis rerun. It exports all 20 embedded PNGs and enables live saving at 200 DPI before plt.show(), preserving figure background and tight bounds. Reset setup before another ordered run. Initial image extraction preserves the saved inline resolution; it does not rerender charts at 200 DPI. The [gallery](../outputs/figures/README.md) maps every filename to its analysis.
+The notebook includes a chart-export setup appendix for retail_chart_exports.py, but its import and enable_chart_exports() call are currently commented out. Uncomment them and run setup once before an ordered analysis rerun. The helper exports all 20 embedded PNGs and enables live saving at 200 DPI before plt.show(), preserving figure background and tight bounds. Reset setup before another ordered run. Snapshot extraction preserves the saved inline resolution; it does not rerender charts at 200 DPI. The [gallery](../outputs/figures/README.md) maps every filename to its analysis.
 
-This update validates the helper, image inventory and documentation references, but does not rerun expensive training, Apriori or model serialization. The existing notebook's recorded metrics and figures are preserved. Superseded notebooks and old charts have been removed; outputs/figures/ contains the current chart set.
+This documentation update checks saved metrics, model code, dependent inventory outputs, artifact references, and image consistency. It refreshes the three differing PNG exports (MarkDown1 scatter, tuned forecast diagnostics, and feature importance) directly from the current embedded images, without rerunning training, Apriori, model serialization, or chart rendering. The notebook is unchanged. Superseded notebooks and old charts have been removed; outputs/figures/ contains the current chart set.
 
 ## 10. Practical use
 
