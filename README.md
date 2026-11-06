@@ -51,14 +51,14 @@ A total of **1,285 negative sales records** are clipped to zero in the cleaned t
 
 ## Model Performance and Selection
 
-The following results are from the notebook's saved outputs. Training was not rerun for this documentation update.
+The following results are from the notebook's saved outputs and the supplied tuning-comparison output, which reports tuned LightGBM test MAE as $1,414.30. Training was not rerun for this documentation update.
 
 | Model | Test WMAE ($) | Test RMSE ($) | Test MAE ($) | Test R² |
 |---|---:|---:|---:|---:|
 | Ridge | 1,808.42 | 3,271.17 | 1,778.71 | 0.9778 |
 | Random Forest | **1,471.72** | 2,988.12 | **1,404.11** | 0.9815 |
 | Default LightGBM | 1,484.42 | 2,944.74 | 1,436.34 | 0.9820 |
-| Tuned LightGBM | 1,473.21 | **2,931.88** | Not printed | **0.9822** |
+| Tuned LightGBM | 1,473.21 | **2,931.88** | 1,414.30 | **0.9822** |
 
 WMAE measures average absolute error with holiday rows weighted five times as much as regular rows. **Random Forest has the lowest WMAE**, while **tuned LightGBM has the lowest RMSE and highest R²**. Tuned LightGBM is used for the model saving and loading example.
 
