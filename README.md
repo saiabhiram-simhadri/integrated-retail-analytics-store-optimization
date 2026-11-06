@@ -91,10 +91,10 @@ Random Forest training, LightGBM tuning and Apriori rule generation can take som
 
 ## Files and Outputs
 
-- [Chart gallery](outputs/figures/README.md): exported figures.
-- [Project report](docs/project_report.md): a longer explanation of the analysis.
-- `retail_chart_exports.py`: helper for saving charts. Uncomment the import and function call in the chart-export setup cell near the end of the notebook, then run it before the analysis cells. It can export embedded charts and save plots during a new run.
-- `models/`: older saved models. Running the current notebook's saving cell creates `models/retail_demand_forecaster.joblib`, which is not currently included.
+- [Chart gallery](outputs/figures): Exported figures.
+- [Project report](docs/Integrated_Retail_Analytics_Workflow_Report.docx): Explanation of the analysis and complete workflow.
+- `retail_chart_exports.py`: Helper for saving charts. Uncomment the import and function call in the chart-export setup cell near the end of the notebook, then run it before the analysis cells. It can export embedded charts and save plots during a new run.
+- `models/`: older saved models. Running the current notebook's saving cell creates `models/retail_demand_forecaster.joblib`.
 
 ## Future Improvements
 
